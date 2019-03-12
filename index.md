@@ -1,97 +1,273 @@
----
-layout: page
-title: Bootstrap 4 Github Pages
----
+# Intro to Arduino
+This repository contains notes, documentation, and code snippets for the MCT Intro to Arduino Class.
 
-A [Bootstrap 4](https://getbootstrap.com/) start up project for [Github Pages](https://pages.github.com/) and [Jekyll](https://jekyllrb.com/).
+## Getting Started
+The Arduino IDE is already configured on MakerspaceCT's computers, but when you go to set up the Development Environment at home, here is where to find the software:
+* Download the latest version (1.8.8 as of this writing) of the Arduino IDE: https://www.arduino.cc/en/Main/Software
 
-* A full Bootstrap 4 theme usable both on Github Pages and with a standalone Jekyll.
-* Recompiles Bootstrap from SCSS files, which allows to customize Bootstrap's variables and use Bootstrap themes.
-* Full support of Bootstrap's JavaScript plugins.
-* Supports all features of Github Pages and Jekyll.
+## Notes / Useful Links
+* [Arduino in a Nutshell](https://www.teachmeteamwork.com/files/arduino-in-a-nutshell-1.8.pdf) - Jan Borchers' 20-page crash course in Arduino. Great, simple explanations of Arduino features.
+* [Arduino Website](https://arduino.cc) - Official Arduino project website - lots of great learning tutorials here.
+* [Smraza S32 Starter Kit](https://www.amazon.com/Smraza-Starter-Ultrasonic-Distance-Raspberry/dp/B01MATM4XF/ref=sr_1_1?ie=UTF8&qid=1547591276&sr=8-1&keywords=s32+smraza) - Parts kit used in class (does not include Arduino Uno board or USB cable).
+* [Smraza S32 Tutorial Download](https://mega.nz/#F!9tYjhBLR!LerlzHYou2gNKJvzXs_8aA) - Link to download the source tutorials for the kit used in class.
+* [Uno R3-compatible Board and Cable](https://www.amazon.com/Elegoo-EL-CB-001-ATmega328P-ATMEGA16U2-Arduino/dp/B01EWOE0UU/ref=sr_1_1?keywords=arduino+uno&qid=1552332604&s=gateway&sr=8-1) - sample Arduino-compatible board. This isn't linked because it's any better than any other board. You can also search Amazon, [Bang good](https://www.banggood.com/UNO-R3-ATmega328P-Development-Board-For-Arduino-No-Cable-p-964163.html?rmmds=search&cur_warehouse=CN), or any number of other sites for "Arduino Uno R3".
 
-## Setup Guide
+## Code snippets
+These are some of the code snippets used in class.
 
-### Fork this repository
+### Blink
+```
+// Pin 13 has an LED connected on most Arduino boards.
+int led = 13;
 
-[Go to this repository page on Github](https://github.com/nicolas-van/bootstrap-4-github-pages) and click the `Fork` button on the top right of the page.
+// the setup routine runs once when you press reset:
+void setup() {                
+  // initialize the digital pin as an output.
+  pinMode(led, OUTPUT);     
+}
 
-### Rename your forked repository
+// the loop routine repeats forever:
+void loop() {
+  digitalWrite(led, HIGH);      // turn the LED on (HIGH is the voltage level)
+  delay(1000);                  // wait for a second
+  digitalWrite(led, LOW);       // turn the LED off by making the voltage LOW
+  delay(1000);                  // wait for a second
+}
+```
 
-Here we have two possibilities:
+### Potentiometer (Analog Input)
+```
+int sensorPin = A0;    // select the input pin for the potentiometer
+int ledPin = 13;      // select the pin for the LED
+int sensorValue = 0;  // variable to store the value coming from the sensor
 
-* **You want a user or organization website**
+void setup() {
+  // declare the ledPin as an OUTPUT:
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+}
 
-  In this case your website's URL will be `http://<your username>.github.io` where `<your username>` is your Github user name.
+void loop() {
+  // read the value from the sensor:
+  sensorValue = analogRead(sensorPin);
+  Serial.println(sensorValue);
+  // turn the ledPin on
+  digitalWrite(ledPin, HIGH);
+  // stop the program for <sensorValue> milliseconds:
+  delay(sensorValue);
+  // turn the ledPin off:
+  digitalWrite(ledPin, LOW);
+  // stop the program for for <sensorValue> milliseconds:
+  delay(sensorValue);
+}
 
-  Go in the `Settings` page of your repository and rename it to `<your username>.github.io`.
+```
+## Part 2
+These code samples were used in Part 2 of MakerspaceCT's Intro to Arduino. Feel free to give them a try on your own!
 
-* **You want a project website**
+### Stepper
+```
+#include <Stepper.h>
+const int stepsPerRevolution = 200;  // change this to fit the number of steps per revolution
+// for your motor
+// initialize the stepper library on pins 2 through 5:
+Stepper myStepper(stepsPerRevolution, 2, 3, 4, 5);
+int stepCount = 0;         // number of steps the motor has taken
+void setup() {
+  // initialize the serial port:
+  Serial.begin(9600);
+}
+void loop() {
+  // step one step:
+  myStepper.step(1);
+  Serial.print("steps:");
+  Serial.println(stepCount);
+  stepCount++;
+  delay(500);
+}
+```
 
-  In this case your website's URL will be `http://<your username>.github.io/<whatever you want>` where `<whatever you want>` can be any valid name for a Github repository.
+### IIC Scanner
+```
+// --------------------------------------
+// i2c_scanner
+//
+// Version 1
+//    This program (or code that looks like it)
+//    can be found in many places.
+//    For example on the Arduino.cc forum.
+//    The original author is not know.
+// Version 2, Juni 2012, Using Arduino 1.0.1
+//     Adapted to be as simple as possible by Arduino.cc user Krodal
+// Version 3, Feb 26  2013
+//    V3 by louarnold
+// Version 4, March 3, 2013, Using Arduino 1.0.3
+//    by Arduino.cc user Krodal.
+//    Changes by louarnold removed.
+//    Scanning addresses changed from 0...127 to 1...119,
+//    according to the i2c scanner by Nick Gammon
+//    http://www.gammon.com.au/forum/?id=10896
+// Version 5, March 28, 2013
+//    As version 4, but address scans now to 127.
+//    A sensor seems to use address 120.
+// Version 6, November 27, 2015.
+//    Added waiting for the Leonardo serial communication.
+//
+//
+// This sketch tests the standard 7-bit addresses
+// Devices with higher bit address might not be seen properly.
+//
 
-  Go in the `Settings` page of your repository and rename it to `<whatever you want>`.
+#include <Wire.h>
 
-### Activate Github Pages on your repository
 
-Go in the `Settings` page of your repository, in the `Github Pages`, under the `Source` parameter, choose `master branch` then `Save`.
+void setup()
+{
+  Wire.begin();
 
-### That's it
+  Serial.begin(9600);
+  while (!Serial);             // Leonardo: wait for serial monitor
+  Serial.println("\nI2C Scanner");
+}
 
-Your Github Pages website with customizable Bootstrap 4 is now up and running, you can access it using the URL displayed by Github in the `Github Pages` settings.
 
-## Customization Guide
+void loop()
+{
+  byte error, address;
+  int nDevices;
 
-### Modify the configuration
+  Serial.println("Scanning...");
 
-You should at least edit the `_config.yml` file to edit your website's metadata, like the title, description and repository URL.
+  nDevices = 0;
+  for(address = 1; address < 127; address++ )
+  {
+    // The i2c_scanner uses the return value of
+    // the Write.endTransmisstion to see if
+    // a device did acknowledge to the address.
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
 
-### Customize your theme
+    if (error == 0)
+    {
+      Serial.print("I2C device found at address 0x");
+      if (address<16)
+        Serial.print("0");
+      Serial.print(address,HEX);
+      Serial.println("  !");
 
-Let's be honest, this theme uses a vanilla version of Bootstrap 4 and an unmodified Bootstrap is quite unpleasant to the eye. You want to change that.
+      nDevices++;
+    }
+    else if (error==4)
+    {
+      Serial.print("Unknown error at address 0x");
+      if (address<16)
+        Serial.print("0");
+      Serial.println(address,HEX);
+    }    
+  }
+  if (nDevices == 0)
+    Serial.println("No I2C devices found\n");
+  else
+    Serial.println("done\n");
 
-You can of course modify anything in the `_includes`, `_layouts` and `_sass` folders to customize both the HTML or CSS of your website, possibly referring to the [Bootstrap documentation](https://getbootstrap.com/) or the [Jekyll documentation](https://jekyllrb.com/) when needed. This is a normal part of web development and it is outside the scope of this guide.
+  delay(5000);           // wait 5 seconds for next scan
+}
+```
 
-But if you don't know where to start I can recommend you to import a starting theme from [Bootswatch](https://bootswatch.com/).
+### LCD1602
+```
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x3F,16,2);
 
-* Go on [Bootswatch](https://bootswatch.com/) and choose a theme that you like.
-* Using the top bar, download its `_variables.scss` and `_bootswatch.scss` files.
-* Copy the content of `_variables.scss` in `_sass/_variables.scss`.
-* Copy the content of `_bootswatch.scss` in `_sass/_bootstrap_customization.scss`.
+void setup()                                                                                     
+{
+  lcd.init();
+  lcd.backlight();
+  lcd.print("Welcome to");
+  lcd.setCursor(0,1);   //Display position
+  lcd.print("MakerspaceCT");
+}
+void loop()
+{
+  // Turn off the display:
+  lcd.noDisplay();
+  delay(500);
+  // Turn on the display:
+  lcd.display();
+  delay(500);
+ }
 
-That's it, you now have a totally different appearance compared to a vanilla Bootstrap 4.
+```
+### LCD1602 with Potentiometer
+```
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27,16,2);
 
-### Modify the content
+void setup()                                                                                     
+{
+  lcd.init();
+  lcd.backlight();
+  lcd.print("Welcome to");
+  lcd.setCursor(0,1);   //Display position
+  lcd.print("MakerspaceCT");
+  delay(1000);
+}
+void loop()
+{
+  int sensorValue = analogRead(A0);
+  // Move the cursor back to the beginning to replace existing text
+  lcd.setCursor(0,0);
+  lcd.print("Sensor Value:");
+  // Move the cursor to the second line
+  lcd.setCursor(0,1);
+  lcd.print(String(sensorValue) + "           ");
+  delay(500);
+ }
 
-You probably don't want the present guide to be the front page of your website, so you should edit the `index.md` file. You probably also want to edit or delete the `CONTRIBUTING.md`, `README.md` and `LICENSE.md` files.
+```
 
-Aside from that you can of course create new pages and posts like with any Jekyll website by refering to the [Jekyll documentation](https://jekyllrb.com/).
 
-### Run Jekyll on your computer to speed up testing
+### LCD1602 with  DHT Sensor
+```
+#include <LiquidCrystal_I2C.h>
+#include <dht11.h>    
 
-Editing your website's content or theme directly on Github is completely possible but, due to the time Github Pages takes to update your website, it will probably be much more effective to work using a local Jekyll installation.
+LiquidCrystal_I2C lcd(0x3F,16,2); // set the LCD address to 0x3F for a 16 chars and 2 line display  
 
-To do so:
+dht11 DHT;                          //Note:DHT on behalf of the temperature and humidity sensor
+const int dht11_data = 6;     
+int temp=0;
+int hum=0;
 
-* Install the [requirements for Jekyll](https://jekyllrb.com/docs/installation/).
-* Type `bundle install` at the root of your project to install the necessary Ruby dependencies.
-* Type `bundle exec jekyll serve` to launch the test Jekyll web server that will re-compile your work if you edit it.
-* You can then open `http://localhost:4000` in your web browser to see your work-in-progress website.
 
-Please note that, to ensure maximum compatibility with Github Pages, the `Gemfile` of this project references the `github-pages` gem, not Jekyll directly. This implies some differences in behavior compared to the official documentation of Jekyll.
+void setup()                                                                                     
+{
+  lcd.init();     // initialize the lcd
+  lcd.backlight();
+  lcd.print("Welcome to");
+  lcd.setCursor(0,1);
+  lcd.print("MakerspaceCT");
+  delay(2000);
+  lcd.clear();
+}
+void loop()
+{
+  DHT.read(dht11_data);
+  temp=DHT.temperature;
+  hum=DHT.humidity;
+  lcd.clear();                   //clear display
+  lcd.print("Hum=%");            //display "Hum=%"
+  lcd.print(hum);
+  lcd.setCursor(10,0) ;
+  lcd.print("MCT");           //display "MCT"
+  lcd.setCursor(0,1) ;           //Display position
+  lcd.print("Tem=");            //display"Temp="
+  lcd.print(temp);
+  lcd.write(0xDF);              //Display custom characters '°'
+  lcd.print("C");
+  delay(500);                   //After 500ms ,the screen will be refreshed
+}
 
-## Known issues
+```
 
-* Bootstrap 4 should normally be post-processed using [Autoprefixer](https://github.com/postcss/autoprefixer). Even if it is possible to use autoprefixer with Jekyll, it is not possible with a classic Github Pages installation without adding some kind of pre-processing before publication. Since this project mostly aims compatibility with Github Pages I prefer to keep it that way. The consequences of this choice is that some Bootstrap features could not work as expected on older browsers.
-
-## How to contribute
-
-[See the contribution guide](https://github.com/nicolas-van/bootstrap-4-github-pages/blob/master/CONTRIBUTING.md).
-
-## Websites using Bootstrap 4 Github Pages
-
-* [My personal blog](https://nicolas-van.github.io/)
-
-## Other projects
-
-[Easy Markdown to Github Pages](https://nicolas-van.github.io/easy-markdown-to-github-pages/) which documents how to publish Markown files to Github Pages in the fastest way.
+If you have any questions after the class, please feel free to email education at makerspacect.com.
